@@ -7,17 +7,13 @@ const MIN_QUERY_LENGTH = 3
 const MAX_RESULTS = 50
 
 interface SearchComboboxProps {
-  selectedName: string | null
   onSelect: (name: string) => void
   onClear: () => void
 }
 
-export function SearchCombobox({
-  selectedName,
-  onSelect,
-  onClear,
-}: SearchComboboxProps) {
+export function SearchCombobox({ onSelect, onClear }: SearchComboboxProps) {
   const inputId = useId()
+  const hintId = useId()
   const listboxId = useId()
   const inputRef = useRef<HTMLInputElement>(null)
   const [inputValue, setInputValue] = useState('')
@@ -123,12 +119,12 @@ export function SearchCombobox({
       onSubmit={(event) => event.preventDefault()}
       className="flex w-full flex-col gap-2"
     >
-      <label
-        htmlFor={inputId}
-        className="text-sm font-medium text-neutral-300"
-      >
+      <label htmlFor={inputId} className="text-sm font-medium text-white/80">
         Pokémon name
       </label>
+      <p id={hintId} className="text-xs text-white/60">
+        Type at least 3 letters, then choose a suggestion.
+      </p>
 
       <div className="relative">
         <input
@@ -138,6 +134,7 @@ export function SearchCombobox({
           role="combobox"
           aria-expanded={showSuggestions}
           aria-controls={listboxId}
+          aria-describedby={hintId}
           aria-autocomplete="list"
           aria-activedescendant={
             activeIndex >= 0 ? optionId(activeIndex) : undefined
@@ -217,12 +214,6 @@ export function SearchCombobox({
             ))}
           </ul>
         )}
-
-      <p role="status" aria-live="polite" className="text-sm text-neutral-400">
-        {selectedName
-          ? `Selected: ${titleCase(selectedName)}`
-          : 'No Pokémon selected.'}
-      </p>
     </form>
   )
 }
