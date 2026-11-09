@@ -18,3 +18,58 @@
     @apply min-h-dvh bg-neutral-950 text-neutral-100 antialiased;
   }
 }
+
+@layer components {
+  .screen-scanlines::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0.06) 0,
+      rgb(0 0 0 / 0.06) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    mix-blend-mode: multiply;
+  }
+
+  .stat-meter {
+    appearance: none;
+    -webkit-appearance: none;
+    overflow: hidden;
+    border: 0;
+    border-radius: 9999px;
+    background: rgb(0 0 0 / 0.2);
+  }
+
+  .stat-meter::-webkit-meter-bar {
+    border: 0;
+    border-radius: 9999px;
+    background: rgb(0 0 0 / 0.2);
+  }
+
+  .stat-meter::-webkit-meter-optimum-value,
+  .stat-meter::-webkit-meter-suboptimum-value,
+  .stat-meter::-webkit-meter-even-less-good-value {
+    border-radius: 9999px;
+    background: var(--stat-color, #dc0a2d);
+  }
+
+  .stat-meter::-moz-meter-bar {
+    border-radius: 9999px;
+    background: var(--stat-color, #dc0a2d);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,39 @@
+interface PokeballIconProps {
+  className?: string
+}
+
+export function PokeballIcon({ className }: PokeballIconProps) {
+  return (
+    <svg
+      viewBox="0 0 64 64"
+      role="presentation"
+      aria-hidden="true"
+      className={className}
+    >
+      <circle cx="32" cy="32" r="30" fill="#f8fafc" />
+      <path d="M2 32a30 30 0 0 1 60 0H42a10 10 0 0 0-20 0H2Z" fill="#dc0a2d" />
+      <path
+        d="M2 32h20a10 10 0 0 0 20 0h20"
+        fill="none"
+        stroke="#1b1b1f"
+        strokeWidth="6"
+      />
+      <circle
+        cx="32"
+        cy="32"
+        r="10"
+        fill="#f8fafc"
+        stroke="#1b1b1f"
+        strokeWidth="6"
+      />
+      <circle
+        cx="32"
+        cy="32"
+        r="30"
+        fill="none"
+        stroke="#1b1b1f"
+        strokeWidth="4"
+      />
+    </svg>
+  )
+}
