@@ -1,4 +1,4 @@
-import { useId, useMemo, useRef, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import { usePokemonNames } from '../hooks/usePokemonNames'
 import { titleCase } from '../lib/pokemon'
@@ -16,6 +16,7 @@ export function SearchCombobox({ onSelect, onClear }: SearchComboboxProps) {
   const hintId = useId()
   const listboxId = useId()
   const inputRef = useRef<HTMLInputElement>(null)
+  const listboxRef = useRef<HTMLUListElement>(null)
   const [inputValue, setInputValue] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
@@ -43,7 +44,19 @@ export function SearchCombobox({ onSelect, onClear }: SearchComboboxProps) {
   const showSuggestions =
     isOpen && inputValue.trim().length >= MIN_QUERY_LENGTH
   const isQuerySettled = normalizedQuery === debouncedQuery
+  const highlightedIndex =
+    activeIndex >= 0 && activeIndex < results.length ? activeIndex : -1
   const optionId = (index: number) => `${listboxId}-option-${index}`
+
+  useEffect(() => {
+    if (highlightedIndex < 0) {
+      return
+    }
+
+    document
+      .getElementById(`${listboxId}-option-${highlightedIndex}`)
+      ?.scrollIntoView({ block: 'nearest' })
+  }, [highlightedIndex, listboxId])
 
   function selectPokemon(name: string) {
     setInputValue(titleCase(name))
@@ -80,24 +93,42 @@ export function SearchCombobox({ onSelect, onClear }: SearchComboboxProps) {
       return
     }
 
-    if (event.key === 'ArrowDown') {
-      event.preventDefault()
-      setIsOpen(true)
-
-      if (results.length > 0) {
-        setActiveIndex((index) => (index + 1) % results.length)
+    if (
+      event.key === 'ArrowDown' ||
+      event.key === 'ArrowUp' ||
+      event.key === 'Home' ||
+      event.key === 'End' ||
+      event.key === 'PageDown' ||
+      event.key === 'PageUp'
+    ) {
+      if (results.length === 0) {
+        return
       }
 
-      return
-    }
-
-    if (event.key === 'ArrowUp') {
       event.preventDefault()
       setIsOpen(true)
 
-      if (results.length > 0) {
-        setActiveIndex((index) =>
-          index <= 0 ? results.length - 1 : index - 1,
+      if (event.key === 'Home') {
+        setActiveIndex(0)
+      } else if (event.key === 'End') {
+        setActiveIndex(results.length - 1)
+      } else if (event.key === 'PageDown') {
+        setActiveIndex(
+          Math.min(results.length - 1, Math.max(0, highlightedIndex) + 10),
+        )
+      } else if (event.key === 'PageUp') {
+        setActiveIndex(Math.max(0, highlightedIndex - 10))
+      } else if (event.key === 'ArrowDown') {
+        setActiveIndex(
+          highlightedIndex < 0
+            ? 0
+            : (highlightedIndex + 1) % results.length,
+        )
+      } else {
+        setActiveIndex(
+          highlightedIndex < 0
+            ? results.length - 1
+            : (highlightedIndex - 1 + results.length) % results.length,
         )
       }
 
@@ -105,9 +136,19 @@ export function SearchCombobox({ onSelect, onClear }: SearchComboboxProps) {
     }
 
     if (event.key === 'Enter') {
-      if (activeIndex >= 0 && results[activeIndex]) {
+      const activeResult =
+        highlightedIndex >= 0 ? results[highlightedIndex] : undefined
+      const exactMatch =
+        normalizedQuery.length >= MIN_QUERY_LENGTH
+          ? pokemonNames.find((name) => name === normalizedQuery)
+          : undefined
+      const firstResult =
+        isQuerySettled && results.length > 0 ? results[0] : undefined
+      const selection = activeResult ?? exactMatch ?? firstResult
+
+      if (selection) {
         event.preventDefault()
-        selectPokemon(results[activeIndex])
+        selectPokemon(selection)
       }
     }
   }
@@ -137,7 +178,7 @@ export function SearchCombobox({ onSelect, onClear }: SearchComboboxProps) {
           aria-describedby={hintId}
           aria-autocomplete="list"
           aria-activedescendant={
-            activeIndex >= 0 ? optionId(activeIndex) : undefined
+            highlightedIndex >= 0 ? optionId(highlightedIndex) : undefined
           }
           autoComplete="off"
           spellCheck={false}
@@ -187,6 +228,7 @@ export function SearchCombobox({ onSelect, onClear }: SearchComboboxProps) {
         !isError &&
         results.length > 0 && (
           <ul
+            ref={listboxRef}
             id={listboxId}
             role="listbox"
             aria-label="Pokémon suggestions"
@@ -197,15 +239,15 @@ export function SearchCombobox({ onSelect, onClear }: SearchComboboxProps) {
                 key={name}
                 id={optionId(index)}
                 role="option"
-                aria-selected={index === activeIndex}
+                aria-selected={index === highlightedIndex}
                 onPointerDown={(event) => {
                   event.preventDefault()
                   selectPokemon(name)
                 }}
                 onMouseEnter={() => setActiveIndex(index)}
                 className={`cursor-pointer px-4 py-2 text-sm transition ${
-                  index === activeIndex
-                    ? 'bg-pokedex-red/20 text-white'
+                  index === highlightedIndex
+                    ? 'bg-pokedex-red/30 font-semibold text-white'
                     : 'text-neutral-300'
                 }`}
               >

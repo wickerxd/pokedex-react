@@ -2,18 +2,28 @@ import type { ReactNode } from 'react'
 import { ApiError } from '../api/pokeapi'
 import { usePokemon } from '../hooks/usePokemon'
 import { titleCase } from '../lib/pokemon'
+import type { Pokemon } from '../types/pokemon'
 import { PokeballIcon } from './PokeballIcon'
 import { PokemonDetails } from './PokemonDetails'
 
 interface PokemonScreenProps {
   name: string | null
   isShiny: boolean
+  isFavorite: boolean
+  onToggleFavorite: (pokemon: Pokemon) => void
+  onSelect: (name: string) => void
 }
 
 const CENTERED_SCREEN =
   'flex h-full min-h-[22rem] flex-col items-center justify-center gap-4 p-2 text-center sm:min-h-[26rem]'
 
-export function PokemonScreen({ name, isShiny }: PokemonScreenProps) {
+export function PokemonScreen({
+  name,
+  isShiny,
+  isFavorite,
+  onToggleFavorite,
+  onSelect,
+}: PokemonScreenProps) {
   const {
     data: pokemon,
     isPending,
@@ -70,7 +80,15 @@ export function PokemonScreen({ name, isShiny }: PokemonScreenProps) {
     )
   } else if (pokemon) {
     status = `${titleCase(pokemon.name)} loaded.`
-    content = <PokemonDetails pokemon={pokemon} isShiny={isShiny} />
+    content = (
+      <PokemonDetails
+        pokemon={pokemon}
+        isShiny={isShiny}
+        isFavorite={isFavorite}
+        onToggleFavorite={onToggleFavorite}
+        onSelect={onSelect}
+      />
+    )
   } else {
     content = null
   }

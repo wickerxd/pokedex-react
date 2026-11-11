@@ -1,21 +1,20 @@
-import type { ReactNode } from "react";
-import { PokeballIcon } from "./PokeballIcon";
-import { ShinyToggle } from "./ShinyToggle";
+import type { ReactNode } from 'react'
+import { PokeballIcon } from './PokeballIcon'
 
 interface PokedexShellProps {
-  screen: ReactNode;
-  search: ReactNode;
-  isShiny: boolean;
-  onShinyChange: (value: boolean) => void;
-  shinyDisabled: boolean;
+  tabs: ReactNode
+  screen: ReactNode
+  controls: ReactNode
+  panel?: ReactNode
+  panelHidden?: boolean
 }
 
 export function PokedexShell({
+  tabs,
   screen,
-  search,
-  isShiny,
-  onShinyChange,
-  shinyDisabled,
+  controls,
+  panel,
+  panelHidden = false,
 }: PokedexShellProps) {
   return (
     <section
@@ -42,12 +41,14 @@ export function PokedexShell({
         </h1>
       </header>
 
+      {tabs}
+
       <div className="mx-3 mb-3 grid gap-3 sm:mx-4 sm:mb-4 sm:grid-cols-[minmax(0,1fr)_11rem] lg:grid-cols-[minmax(0,1fr)_12rem]">
         <section
           aria-label="Pokémon display"
           className="rounded-2xl bg-pokedex-red-dark p-2.5 shadow-inner sm:p-4"
         >
-          <div className="screen-scanlines relative min-h-88 overflow-hidden rounded-xl bg-pokedex-screen p-3 sm:min-h-104 sm:p-5">
+          <div className="screen-scanlines relative min-h-88 overflow-hidden rounded-xl bg-pokedex-screen p-3 sm:h-[30rem] sm:p-5 lg:h-[32rem]">
             {screen}
           </div>
         </section>
@@ -56,11 +57,7 @@ export function PokedexShell({
           aria-label="Pokédex controls"
           className="flex flex-col items-center justify-between gap-4 rounded-2xl bg-pokedex-red-dark p-3 sm:p-4"
         >
-          <ShinyToggle
-            isShiny={isShiny}
-            disabled={shinyDisabled}
-            onChange={onShinyChange}
-          />
+          {controls}
 
           <div aria-hidden="true" className="grid grid-cols-3 gap-1">
             <span />
@@ -83,12 +80,15 @@ export function PokedexShell({
         </aside>
       </div>
 
-      <section
-        aria-label="Search Pokémon"
-        className="border-t border-black/10 bg-pokedex-red-dark px-3 py-4 sm:px-4"
-      >
-        {search}
-      </section>
+      {panel && (
+        <section
+          aria-label="Pokédex tools"
+          hidden={panelHidden}
+          className="flex flex-col gap-4 border-t border-black/10 bg-pokedex-red-dark px-3 py-4 sm:px-4"
+        >
+          {panel}
+        </section>
+      )}
 
       <footer
         aria-hidden="true"
@@ -99,5 +99,5 @@ export function PokedexShell({
         ))}
       </footer>
     </section>
-  );
+  )
 }
