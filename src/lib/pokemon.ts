@@ -41,6 +41,20 @@ export function formatPokemonId(id: number): string {
   return `#${String(id).padStart(3, '0')}`
 }
 
+export function getIdFromUrl(url: string): number {
+  const parts = url.split('/').filter(Boolean)
+  return Number(parts[parts.length - 1])
+}
+
+export function getPokemonSpriteUrl(id: number, shiny = false): string {
+  const shinyPath = shiny ? 'shiny/' : ''
+  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${shinyPath}${id}.png`
+}
+
+export function getOfficialArtworkUrl(id: number): string {
+  return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`
+}
+
 export function titleCase(value: string): string {
   return value
     .split(/[-\s]+/)
